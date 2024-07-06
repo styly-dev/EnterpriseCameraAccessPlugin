@@ -18,14 +18,14 @@ public class VisionProCameraAccessManager : MonoBehaviour
 
     void Start()
     {
-        // カメラ取得を開始
+        // Start the main camera capture
         StartMainCameraCapture();
 
-        // Coroutineを開始する
+        // Call ApplyBase64StringToMaterial function continuously
         StartCoroutine(CallFunctionContinuously());
     }
 
-    // skipSeconds 秒おきに連続実行する関数
+    // Call ApplyBase64StringToMaterial function continuously
     IEnumerator CallFunctionContinuously()
     {
         while (true)
@@ -35,19 +35,17 @@ public class VisionProCameraAccessManager : MonoBehaviour
         }
     }
 
-    // Base64StringをTextureに変換してMaterialに適用する
+    // Apply Base64String to Material
     void ApplyBase64StringToMaterial()
     {
         if (tempBase64String == null) { return; }
 
-        // 古いテクスチャを解放
         if (PreviewMaterial.mainTexture != null)
         {
             Texture2D oldTexture = (Texture2D)PreviewMaterial.mainTexture;
             Object.Destroy(oldTexture);
         }
 
-        // 新しいテクスチャを生成
         Texture2D tempTexture = Base64ToTexture2D(tempBase64String);
         PreviewMaterial.mainTexture = tempTexture;
     }
@@ -62,12 +60,12 @@ public class VisionProCameraAccessManager : MonoBehaviour
         SetNativeCallbackOfCameraAccess(null);
     }
 
-    public Texture2D GetCameraFrameTexture()
+    public Texture2D GetMainCameraTexture()
     {
         return PreviewMaterial.mainTexture as Texture2D;
     }
 
-    // Base64StringをTexture2Dに変換する
+    // Convert Base64String to Texture2D
     static Texture2D Base64ToTexture2D(string base64)
     {
         try
@@ -82,11 +80,9 @@ public class VisionProCameraAccessManager : MonoBehaviour
     }
 
     delegate void CallbackDelegate(string command);
-    // This attribute is required for methods that are going to be called from native code via a function pointer.
     [MonoPInvokeCallback(typeof(CallbackDelegate))]
     static void CallbackFromNative(string command)
     {
-        // Debug.Log("Callback from native: " + command.Length);
         Instance.tempBase64String = command;
     }
 
