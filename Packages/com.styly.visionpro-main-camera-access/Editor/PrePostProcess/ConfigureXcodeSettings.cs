@@ -6,19 +6,22 @@ using UnityEngine;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 
-
 public class ConfigureXcodeSettings : IPreprocessBuildWithReport
 {
-    static string LicensePath = "Enterprise.license";
-    static string EntitlementsXmlPath = "Editor/FilesToAdd/Entitlements.entitlements";
-
+    static readonly string LicensePath = "Enterprise.license";                                   // in the Assets directory
+    static readonly string EntitlementsXmlPath = "Editor/FilesToAdd/Entitlements.entitlements";  // in the package directory
 
     public int callbackOrder => 0;
     public void OnPreprocessBuild(BuildReport report)
     {
-        Debug.Log("OnPreprocessBuild");
-        Debug.Log(GetCurrentPackageAbsolutePath());
-
+        // Check if the license file exists
+        string LicenseAbsolutePath = Path.Combine(Application.dataPath, LicensePath);
+        if (!File.Exists(LicenseAbsolutePath))
+        {
+            Debug.LogError("License file not found. Please put the license file at the root of the Assets directory. The file path should be '/Assets/Enterprise.license'.");
+            // Abort the build
+            throw new BuildFailedException("License file not found.");
+        }
     }
 
     [PostProcessBuild]
@@ -145,7 +148,7 @@ public class ConfigureXcodeSettings : IPreprocessBuildWithReport
     {
         var MyPackageInfo = UnityEditor.PackageManager.PackageInfo.FindForAssembly(System.Reflection.MethodInfo.GetCurrentMethod().DeclaringType.Assembly);
         string path = MyPackageInfo.resolvedPath;
- 
+
         return path;
     }
 }
