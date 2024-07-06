@@ -12,5 +12,11 @@
         "email": "info@styly.inc",
         "url": "https://styly.cc/"
     },
-    "samples": []
+    "samples": [
+        {
+            "displayName": "Usage samples",
+            "description": "Sample scene for Main Camera Access Plugin for Vision Pro",
+            "path": "Samples~"
+        }
+    ]
 }
