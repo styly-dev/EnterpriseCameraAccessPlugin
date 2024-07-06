@@ -123,3 +123,7 @@ ContentPackages/com.unity.xr-content.xr-sim-environments-*.tgz
 /_Output/*
 /_Output.meta
 
+# Enterprise API license
+/[Aa]ssets/Enterprise.license
+/[Aa]ssets/Enterprise.license.meta
+
