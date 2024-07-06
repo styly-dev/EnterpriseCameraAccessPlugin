@@ -19,7 +19,7 @@ public class VisionProCameraAccessManager : MonoBehaviour
     void Start()
     {
         // カメラ取得を開始
-        GetMainCameraFrame("");
+        StartMainCameraCapture();
 
         // Coroutineを開始する
         StartCoroutine(CallFunctionContinuously());
@@ -54,12 +54,12 @@ public class VisionProCameraAccessManager : MonoBehaviour
 
     void OnEnable()
     {
-        SetNativeCallback(CallbackFromNative);
+        SetNativeCallbackOfCameraAccess(CallbackFromNative);
     }
 
     void OnDisable()
     {
-        SetNativeCallback(null);
+        SetNativeCallbackOfCameraAccess(null);
     }
 
     public Texture2D GetCameraFrameTexture()
@@ -92,12 +92,12 @@ public class VisionProCameraAccessManager : MonoBehaviour
 
 #if UNITY_VISIONOS && !UNITY_EDITOR
     [DllImport("__Internal")]
-    static extern void SetNativeCallback(CallbackDelegate callback);
+    static extern void SetNativeCallbackOfCameraAccess(CallbackDelegate callback);
     [DllImport("__Internal")]
-    static extern void GetMainCameraFrame(string name);
+    static extern void StartMainCameraCapture();
 #else
-    static void SetNativeCallback(CallbackDelegate callback) { }
-    static void GetMainCameraFrame(string name) { }
+    static void SetNativeCallbackOfCameraAccess(CallbackDelegate callback) { }
+    static void StartMainCameraCapture() { }
 #endif
 
 }
