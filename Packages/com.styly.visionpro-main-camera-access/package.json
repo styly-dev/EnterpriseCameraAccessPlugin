@@ -1,0 +1,16 @@
+{
+    "name": "com.styly.visionpro-main-camera-access",
+    "version": "0.1.0",
+    "displayName": "Main Camera Access Plugin for Vision Pro",
+    "unity": "2022.3",
+    "description": "Main Camera Access Plugin for Vision Pro",
+    "dependencies": {
+        "com.unity.visualscripting": "1.9.4"
+    },
+    "author": {
+        "name": "STYLY, Inc.",
+        "email": "info@styly.inc",
+        "url": "https://styly.cc/"
+    },
+    "samples": []
+}
