@@ -5,11 +5,9 @@ import SwiftUI
 import UnityFramework
 
 // Declared in C# as: static extern void GetMainCameraFrame(string name);
-@_cdecl("GetMainCameraFrame")
-func getMainCameraFrame(_ cname: UnsafePointer<CChar>) {
-
-    let name = String(cString: cname)
-    print("############ GetMainCameraFrame \(name)")
+@_cdecl("StartVisionProMainCameraCapture")
+func startVisionProMainCameraCapture() {
+    print("############ GetMainCameraFrame")
 
     Task {
         await startCameraFeed()
@@ -60,31 +58,30 @@ func sendPixelBufferToUnity(_ pixelBuffer: CVPixelBuffer) {
     // DataをBase64エンコード
     let base64String = imageData.base64EncodedString()
 
-    CallCSharpCallback(base64String)
+    CallCSharpCallbackOfCameraAccess(base64String)
 }
 
 
-typealias CallbackDelegateType = @convention(c) (UnsafePointer<CChar>) -> Void
-
-var sCallbackDelegate: CallbackDelegateType? = nil
+typealias CallbackDelegateTypeOfCameraAccess = @convention(c) (UnsafePointer<CChar>) -> Void
+var sCallbackDelegateOfCameraAccess: CallbackDelegateTypeOfCameraAccess? = nil
 
 // Declared in C# as: static extern void SetNativeCallback(CallbackDelegate callback);
-@_cdecl("SetNativeCallback")
-func setNativeCallback(_ delegate: CallbackDelegateType)
+@_cdecl("SetNativeCallbackOfCameraAccess")
+func setNativeCallbackOfCameraAccess(_ delegate: CallbackDelegateTypeOfCameraAccess)
 {
     print("############ SET NATIVE CALLBACK")
-    sCallbackDelegate = delegate
+    sCallbackDelegateOfCameraAccess = delegate
 }
 
 // This is a function for your own use from the enclosing Unity-VisionOS app, to call the delegate
 // from your own windows/views (HelloWorldContentView uses this)
-public func CallCSharpCallback(_ str: String)
+public func CallCSharpCallbackOfCameraAccess(_ str: String)
 {
-    if (sCallbackDelegate == nil) {
+    if (sCallbackDelegateOfCameraAccess == nil) {
         return
     }
 
     str.withCString {
-        sCallbackDelegate!($0)
+        sCallbackDelegateOfCameraAccess!($0)
     }
 }

@@ -5,12 +5,22 @@
     "unity": "2022.3",
     "description": "Main Camera Access Plugin for Vision Pro",
     "dependencies": {
-        "com.unity.visualscripting": "1.9.4"
+        "com.unity.visualscripting": "1.9.4",
+        "com.unity.polyspatial": "1.2.3",
+        "com.unity.polyspatial.visionos": "1.2.3",
+        "com.unity.polyspatial.xr": "1.2.3",
+        "com.unity.xr.visionos": "1.2.3"
     },
     "author": {
         "name": "STYLY, Inc.",
         "email": "info@styly.inc",
         "url": "https://styly.cc/"
     },
-    "samples": []
+    "samples": [
+        {
+            "displayName": "Usage samples",
+            "description": "Sample scene for Main Camera Access Plugin for Vision Pro",
+            "path": "Samples~"
+        }
+    ]
 }

@@ -140,10 +140,7 @@ PlayerSettings:
   visionOSBundleVersion: 1.0
   tvOSBundleVersion: 1.0
   bundleVersion: 0.1.0
-  preloadedAssets:
-  - {fileID: -2932153039396323789, guid: 8cf361dd60d704b52b0037e6e50f9eca, type: 2}
-  - {fileID: 11400000, guid: 17c385017ee7943e0917266619ec4107, type: 2}
-  - {fileID: 11400000, guid: 725c5d91fe8c6423da834a163b27e30d, type: 2}
+  preloadedAssets: []
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -565,7 +562,7 @@ PlayerSettings:
   enableInternalProfiler: 0
   logObjCUncaughtExceptions: 1
   enableCrashReportAPI: 0
-  cameraUsageDescription: 
+  cameraUsageDescription: Camera is used for image capture
   locationUsageDescription: 
   microphoneUsageDescription: 
   bluetoothUsageDescription: 
