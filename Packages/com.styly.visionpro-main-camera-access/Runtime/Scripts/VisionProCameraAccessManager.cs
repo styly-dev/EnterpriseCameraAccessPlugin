@@ -2,13 +2,36 @@ using System.Collections;
 using AOT;
 using UnityEngine;
 using System.Runtime.InteropServices;
+using UnityEngine.UI;
 
 public class VisionProCameraAccessManager : MonoBehaviour
 {
     public static VisionProCameraAccessManager Instance { get; private set; }
     public Material PreviewMaterial;
-    string tempBase64String = null;
-    float skipSeconds = 0.1f;
+
+    [Tooltip("WebCam will be used for Editor mode or smartphone. Default camera is used if this field is empty.")]
+    public string WebCamDeviceName = "";
+
+    private WebCamTexture webCamTexture;
+    private Texture2D tmpTexture = null;
+    private string tempBase64String = null;
+    private float skipSeconds = 0.1f;
+
+    /// <summary>
+    /// Get Vision Pro main camera image as texture2D.
+    /// </summary>
+    /// <returns></returns>
+    public Texture2D GetMainCameraTexture2D()
+    {
+        if (IsVisionOs())
+        {
+            return Base64ToTexture2D(tempBase64String);
+        }
+        else
+        {
+            return tmpTexture;
+        }
+    }
 
     void Awake()
     {
@@ -16,53 +39,120 @@ public class VisionProCameraAccessManager : MonoBehaviour
         else { Instance = this; DontDestroyOnLoad(this.gameObject); }
     }
 
-    void Start()
-    {
-        // Start the main camera capture
-        StartMainCameraCapture();
-
-        // Call ApplyBase64StringToMaterial function continuously
-        StartCoroutine(CallFunctionContinuously());
-    }
-
-    // Call ApplyBase64StringToMaterial function continuously
-    IEnumerator CallFunctionContinuously()
-    {
-        while (true)
-        {
-            yield return new WaitForSeconds(skipSeconds);
-            ApplyBase64StringToMaterial();
-        }
-    }
-
-    // Apply Base64String to Material
-    void ApplyBase64StringToMaterial()
-    {
-        if (tempBase64String == null) { return; }
-
-        if (PreviewMaterial.mainTexture != null)
-        {
-            Texture2D oldTexture = (Texture2D)PreviewMaterial.mainTexture;
-            Object.Destroy(oldTexture);
-        }
-
-        Texture2D tempTexture = Base64ToTexture2D(tempBase64String);
-        PreviewMaterial.mainTexture = tempTexture;
-    }
-
     void OnEnable()
     {
-        SetNativeCallbackOfCameraAccess(CallbackFromNative);
+#if UNITY_VISIONOS && !UNITY_EDITOR
+                SetNativeCallbackOfCameraAccess(CallbackFromNative);
+#endif
+    }
+
+    void Start()
+    {
+
+#if UNITY_VISIONOS && !UNITY_EDITOR
+        // Start the main camera capture
+        StartVisionProMainCameraCapture();
+
+        // Apply to material continuously
+        StartCoroutine(ApplyVisionProCameraCaptureToMaterialContinuously());
+
+        // Skip the following process
+        return;
+#endif
+
+#if UNITY_EDITOR
+        StartWebCam(WebCamDeviceName);
+#elif UNITY_IOS
+        StartCoroutine(RequestCameraPermission_iOS());
+#elif UNITY_ANDROID
+        StartCoroutine(RequestCameraPermission_Android());
+#else
+        StartWebCam(WebCamDeviceName);
+#endif
     }
 
     void OnDisable()
     {
-        SetNativeCallbackOfCameraAccess(null);
+        if (IsVisionOs())
+        {
+            SetNativeCallbackOfCameraAccess(null);
+        }
+        else
+        {
+            if (webCamTexture != null) { webCamTexture.Stop(); }
+        }
     }
 
-    public Texture2D GetMainCameraTexture()
+    IEnumerator RequestCameraPermission_iOS()
     {
-        return PreviewMaterial.mainTexture as Texture2D;
+        yield return Application.RequestUserAuthorization(UserAuthorization.WebCam);
+        if (Application.HasUserAuthorization(UserAuthorization.WebCam))
+        {
+            StartWebCam(WebCamDeviceName);
+        }
+        else
+        {
+            Debug.Log("Permission denied.");
+        }
+    }
+
+    IEnumerator RequestCameraPermission_Android()
+    {
+        if (!Application.HasUserAuthorization(UserAuthorization.WebCam))
+        {
+            Application.RequestUserAuthorization(UserAuthorization.WebCam);
+            yield return new WaitForSeconds(1); // 権限要求の結果を待つ
+        }
+
+        if (Application.HasUserAuthorization(UserAuthorization.WebCam))
+        {
+            StartWebCam(WebCamDeviceName);
+        }
+        else
+        {
+            Debug.Log("Permission denied");
+        }
+    }
+
+    void Update()
+    {
+        // Apply WebCamTexture to material
+        ApplyWebcamTextureToMaterial(PreviewMaterial, webCamTexture);
+    }
+
+    void StartWebCam(string deviceName)
+    {
+        webCamTexture = new WebCamTexture(deviceName);
+        webCamTexture.Play();
+    }
+
+    // Call function continuously
+    IEnumerator ApplyVisionProCameraCaptureToMaterialContinuously()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(skipSeconds);
+            ApplyBase64StringToMaterial(PreviewMaterial, tempBase64String);
+        }
+    }
+
+    void ApplyWebcamTextureToMaterial(Material material, WebCamTexture webCamTexture)
+    {
+        if (webCamTexture == null) { return; }
+        if (material == null) { return; }
+        if (webCamTexture.width <= 16) { return; }
+        if (webCamTexture.isPlaying == false) { return; }
+        if (tmpTexture == null) { tmpTexture = new Texture2D(webCamTexture.width, webCamTexture.height); }
+        tmpTexture.SetPixels(webCamTexture.GetPixels());
+        tmpTexture.Apply();
+        material.mainTexture = tmpTexture;
+    }
+
+    void ApplyBase64StringToMaterial(Material material, string base64String)
+    {
+        if (base64String == null) { return; }
+        Texture2D tempTexture = Base64ToTexture2D(base64String);
+        material.mainTexture = tempTexture;
     }
 
     // Convert Base64String to Texture2D
@@ -77,6 +167,14 @@ public class VisionProCameraAccessManager : MonoBehaviour
         }
         catch { Debug.LogError("Failed to convert base64 string to texture2D."); }
         return null;
+    }
+
+    bool IsVisionOs()
+    {
+#if UNITY_VISIONOS && !UNITY_EDITOR
+        return true;
+#endif
+        return false;
     }
 
     delegate void CallbackDelegate(string command);
