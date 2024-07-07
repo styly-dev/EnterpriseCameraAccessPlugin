@@ -11,6 +11,7 @@
     "com.unity.ugui": "1.0.0",
     "com.unity.visualscripting": "1.9.4",
     "com.unity.xr.management": "4.4.1",
+    "com.unity.xr.picoxr": "https://github.com/picoxr/GetCameraFrame.git?path=PICO%20Unity%20Integration%20SDK_250",
     "com.unity.xr.visionos": "1.2.3",
     "com.unity.modules.ai": "1.0.0",
     "com.unity.modules.androidjni": "1.0.0",
