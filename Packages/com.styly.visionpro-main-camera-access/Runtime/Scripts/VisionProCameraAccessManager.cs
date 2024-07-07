@@ -90,10 +90,10 @@ public class VisionProCameraAccessManager : MonoBehaviour
     [DllImport("__Internal")]
     static extern void SetNativeCallbackOfCameraAccess(CallbackDelegate callback);
     [DllImport("__Internal")]
-    static extern void StartMainCameraCapture();
+    static extern void StartVisionProMainCameraCapture();
 #else
     static void SetNativeCallbackOfCameraAccess(CallbackDelegate callback) { }
-    static void StartMainCameraCapture() { }
+    static void StartVisionProMainCameraCapture() { }
 #endif
 
 }

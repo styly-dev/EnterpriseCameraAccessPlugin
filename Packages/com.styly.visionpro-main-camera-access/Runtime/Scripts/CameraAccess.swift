@@ -5,8 +5,8 @@ import SwiftUI
 import UnityFramework
 
 // Declared in C# as: static extern void GetMainCameraFrame(string name);
-@_cdecl("StartMainCameraCapture")
-func startMainCameraCapture() {
+@_cdecl("StartVisionProMainCameraCapture")
+func startVisionProMainCameraCapture() {
     print("############ GetMainCameraFrame")
 
     Task {
