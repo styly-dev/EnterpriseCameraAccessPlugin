@@ -9,6 +9,12 @@
     "precompiledReferences": [],
     "autoReferenced": false,
     "defineConstraints": [],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.xr.picoxr",
+            "expression": "",
+            "define": "USE_PICOXR"
+        }
+    ],
     "noEngineReferences": false
 }
