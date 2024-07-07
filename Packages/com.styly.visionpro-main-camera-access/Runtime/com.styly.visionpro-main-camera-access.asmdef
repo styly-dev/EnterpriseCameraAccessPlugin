@@ -1,7 +1,10 @@
 {
     "name": "com.styly.visionpro-main-camera-access",
     "rootNamespace": "",
-    "references": [],
+    "references": [
+        "GUID:65a004a26c89ac5468e8d4b4b057f1c8",
+        "GUID:f34d393b8d26cb44d9a77c73186b30d0"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
