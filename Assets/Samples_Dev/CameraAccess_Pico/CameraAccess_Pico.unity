@@ -133,7 +133,7 @@ GameObject:
   - component: {fileID: 276013143}
   - component: {fileID: 276013142}
   m_Layer: 0
-  m_Name: VisionProCameraAccessManager
+  m_Name: EnterpriseCameraAccessManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -404,11 +404,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd9f82377aeb9704193bd866d119aaa5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  refreshRate: -1
-  eyeCamera: []
-  appSpaceWarp: 0
-  m_AppSpaceTransform: {fileID: 0}
-  m_CachedDepthTextureMode: 0
   screenFade: 0
   eyeTracking: 0
   trackingMode: 0
@@ -425,33 +420,20 @@ MonoBehaviour:
   foveatedRenderingMode: 0
   openMRC: 1
   foregroundLayerMask:
+    serializedVersion: 2
     m_Bits: 4294967295
   backLayerMask:
+    serializedVersion: 2
     m_Bits: 4294967295
-  swapChain:
-  - {fileID: 0}
-  - {fileID: 0}
-  createMRCOverlaySucceed: 0
-  imageIndex: 0
-  imageCounts: 0
-  mrcCamObjActived: 0
-  cameraAttribute: []
   backgroundCamObj: {fileID: 0}
   foregroundCamObj: {fileID: 0}
   mrcBackgroundRT: {fileID: 0}
   mrcForegroundRT: {fileID: 0}
-  foregroundColor:
-    r: 0
-    g: 1
-    b: 0
-    a: 1
   adaptiveResolutionPowerSetting: 1
   minEyeTextureScale: 0.7
   maxEyeTextureScale: 1.26
-  isNeedResume: 0
   enableSuperResolution: 0
   useRecommendedAntiAliasingLevel: 1
-  mrcCube: {fileID: 0}
 --- !u!4 &1167891955731913990
 Transform:
   m_ObjectHideFlags: 0

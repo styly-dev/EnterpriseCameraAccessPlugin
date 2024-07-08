@@ -133,7 +133,7 @@ GameObject:
   - component: {fileID: 276013143}
   - component: {fileID: 276013142}
   m_Layer: 0
-  m_Name: VisionProCameraAccessManager
+  m_Name: EnterpriseCameraAccessManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -1,5 +1,5 @@
 {
-    "name": "com.styly.visionpro-main-camera-access",
+    "name": "com.styly.enterprise-camera-access",
     "rootNamespace": "",
     "references": [
         "GUID:65a004a26c89ac5468e8d4b4b057f1c8",
