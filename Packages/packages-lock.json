@@ -1,7 +1,7 @@
 {
   "dependencies": {
-    "com.styly.visionpro-main-camera-access": {
-      "version": "file:com.styly.visionpro-main-camera-access",
+    "com.styly.enterprise-camera-access": {
+      "version": "file:com.styly.enterprise-camera-access",
       "depth": 0,
       "source": "embedded",
       "dependencies": {
