@@ -66,7 +66,7 @@ openupm add om.styly.com.styly.enterprise-camera-access
 
 - Check `Project Settings` - `XR Plug-in Management` - `Android section` - `Initialize XR on Startup` and `Plug-in Providers` - `PICO`
 - Set authorized package name at `Project Settings` - `Player` - `Identification` - `Package Name`
-- Set `Android 5.1 (API level 22)` or higher at `Project Settings` - `Minimum API Level`
+- Set `Android 10.0 (API level 29)` or higher at `Project Settings` - `Minimum API Level`
 - PICO Unity Integration SDK will be automatically installed when you import Pico Samples.
 
 ### Usage
