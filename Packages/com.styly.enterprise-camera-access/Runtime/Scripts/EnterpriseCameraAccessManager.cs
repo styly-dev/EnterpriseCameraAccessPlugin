@@ -11,9 +11,9 @@ using Unity.XR.PICO.TOBSupport;
 using Unity.XR.PXR;
 #endif
 
-public class VisionProCameraAccessManager : MonoBehaviour
+public class EnterpriseCameraAccessManager : MonoBehaviour
 {
-    public static VisionProCameraAccessManager Instance { get; private set; }
+    public static EnterpriseCameraAccessManager Instance { get; private set; }
     public Material PreviewMaterial;
 
     [Tooltip("WebCam will be used for Editor mode or smartphone. Default camera is used if this field is empty.")]
