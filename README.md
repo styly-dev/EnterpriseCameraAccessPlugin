@@ -1,6 +1,7 @@
 # Unity Enterprise Camera Access Plugin for VisionPro and Pico
 
 ## Introduction
+![CameraRecording2](https://github.com/styly-dev/EnterpriseCameraAccessPlugin/assets/387880/1a2cd74a-6096-4200-85ff-30daaa707d03)
 
 Apple and Pico recently released a camera access feature for their Vision Pro and Pico 4 Enterprise devices aimed at enterprise developers.
 
@@ -10,6 +11,7 @@ This Unity package solves two problems:
 
 ## Features
 
+- Easy to use plugin. You don't need to write even one line of code to get camera images. 
 - Camera image can be obtained using the same script `Enterprise Camera Access Manager` for Vision Pro, Pico 4 Enterprise and Webcam in the Editor mode.
 - Just set a material on the manager script. The material will be updated with the camera image.
 - `GetMainCameraTexture2D()` returns the camera image as Texture2D.
