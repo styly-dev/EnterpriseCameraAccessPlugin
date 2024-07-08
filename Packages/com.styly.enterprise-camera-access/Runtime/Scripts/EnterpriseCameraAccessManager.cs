@@ -174,6 +174,14 @@ public class EnterpriseCameraAccessManager : MonoBehaviour
     void ApplyBase64StringToMaterial(Material material, string base64String)
     {
         if (base64String == null) { return; }
+
+        // Destroy the old texture
+        if (PreviewMaterial.mainTexture != null)
+        {
+            Texture2D oldTexture = (Texture2D)PreviewMaterial.mainTexture;
+            UnityEngine.Object.Destroy(oldTexture);
+        }
+
         tmpTexture = Base64ToTexture2D(base64String);
         material.mainTexture = tmpTexture;
     }
