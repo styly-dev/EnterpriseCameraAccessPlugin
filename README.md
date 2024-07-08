@@ -1,11 +1,11 @@
-# Unity Enterprise Camera Access Plugin for VisionPro and Pico
+# Unity Enterprise Camera Access Plugin for Vision Pro and Pico 4 Enterprise
 
 ## Introduction
 ![CameraRecording2](https://github.com/styly-dev/EnterpriseCameraAccessPlugin/assets/387880/1a2cd74a-6096-4200-85ff-30daaa707d03)
 
-Apple and Pico recently released a camera access feature for their Vision Pro and Pico 4 Enterprise devices aimed at enterprise developers.
+Apple and Pico recently released a camera access feature for enterprise usage. This Unity plugin makes it easier for developers to use the feature on Vision Pro and Pico 4 Enterprise devices.
 
-This Unity package solves two problems:
+The Unity package solves two problems:
 - The Apple Enterprise API does not provide a Unity plugin; it is designed for Swift development.
 - Compatibility across multiple devices.
 
