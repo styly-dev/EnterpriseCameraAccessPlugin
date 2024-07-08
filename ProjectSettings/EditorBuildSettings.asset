@@ -6,8 +6,8 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Samples_Dev/CameraAccess_Pico/CameraAccess_Pico.unity
-    guid: d155db9bfccda40da8765d16610bedac
+    path: Assets/Samples_Dev/CameraAccess_VisionPro/CameraAccess_VisionPro.unity
+    guid: ed332cd383eb049ebb2e0137b5a2f702
   m_configObjects:
     Unity.XR.PXR.Settings: {fileID: 11400000, guid: 473775b61379a4e14888ec6e9a143303,
       type: 2}
