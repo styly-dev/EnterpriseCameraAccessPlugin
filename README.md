@@ -53,7 +53,7 @@ npm install -g openupm-cli
 cd YOUR_UNITY_PROJECT_DIR
 
 # Install package: com.styly.webrequest-visualscripting-nodes
-openupm add om.styly.com.styly.enterprise-camera-access
+openupm add com.styly.com.styly.enterprise-camera-access
 ```
 
 ### Setup
