@@ -16,7 +16,7 @@ public class EnterpriseCameraAccessManager : MonoBehaviour
     public static EnterpriseCameraAccessManager Instance { get; private set; }
     public Material PreviewMaterial;
 
-    [Tooltip("WebCam will be used for Editor mode or smartphone. Default camera is used if this field is empty.")]
+    [Tooltip("WebCam will be used for Editor mode or Smartphone. Default camera is used if this field is empty.")]
     public string WebCamDeviceName = "";
 
     private WebCamTexture webCamTexture;
@@ -120,7 +120,7 @@ public class EnterpriseCameraAccessManager : MonoBehaviour
         if (!Application.HasUserAuthorization(UserAuthorization.WebCam))
         {
             Application.RequestUserAuthorization(UserAuthorization.WebCam);
-            yield return new WaitForSeconds(1); // 権限要求の結果を待つ
+            yield return new WaitForSeconds(1); // Wait for the result of the authorization request
         }
 
         if (Application.HasUserAuthorization(UserAuthorization.WebCam))

@@ -44,18 +44,18 @@ func startCameraFeed() async {
 func sendPixelBufferToUnity(_ pixelBuffer: CVPixelBuffer) {
     CVPixelBufferLockBaseAddress(pixelBuffer, .readOnly)
 
-    // CVPixelBufferをUIImageに変換
+    // Convert CVPixelBuffer to UIImage
     let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
     let context = CIContext()
     guard let cgImage = context.createCGImage(ciImage, from: ciImage.extent) else { return }
     let uiImage = UIImage(cgImage: cgImage)
 
-    // UIImageをDataに変換
+    // Convert UIImage to Data.
     guard let imageData = uiImage.jpegData(compressionQuality: 1.0) else {
         return
     }
 
-    // DataをBase64エンコード
+    // Base64 encoding of Data.
     let base64String = imageData.base64EncodedString()
 
     CallCSharpCallbackOfCameraAccess(base64String)

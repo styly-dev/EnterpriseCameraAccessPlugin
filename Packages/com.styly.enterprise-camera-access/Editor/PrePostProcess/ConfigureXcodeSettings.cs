@@ -33,7 +33,7 @@ public class ConfigureXcodeSettings : IPreprocessBuildWithReport
             AddFileToProject(LicenseAbsolutePath, pathToBuiltProject);
             string EntitlementsXmlAbsolutePath = Path.Combine(GetCurrentPackageAbsolutePath(), EntitlementsXmlPath);
             AddEntitlementsFile(EntitlementsXmlAbsolutePath, pathToBuiltProject);
-            AddKeyValueToPlist("NSEnterpriseMCAMUsageDescription", "This app capture images from main camera", pathToBuiltProject);
+            AddKeyValueToPlist("NSEnterpriseMCAMUsageDescription", "This app capture images from the main camera", pathToBuiltProject);
             SetMinimumDeploymentVersion("XROS_DEPLOYMENT_TARGET", "2.0", pathToBuiltProject);
         }
     }
@@ -97,6 +97,7 @@ public class ConfigureXcodeSettings : IPreprocessBuildWithReport
         // Define the path to the Xcode project
         string xcodeprojPath = PBXProject.GetPBXProjectPath(pathToBuiltProject);
         // Unityのバグ。"Unity-iPhone.xcodeproj"がpathで渡ってくるが、正しくは"Unity-VisionOS.xcodeproj"
+        // Unity bug."Unity-iPhone.xcodeproj" is the value returned in the path, but the correct path is “Unity-VisionOS.xcodeproj”.
         xcodeprojPath = xcodeprojPath.Replace("Unity-iPhone.xcodeproj", "Unity-VisionOS.xcodeproj");
         return xcodeprojPath;
     }
