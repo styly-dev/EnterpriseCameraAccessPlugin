@@ -35,14 +35,10 @@ public class EnterpriseCameraAccessManager : MonoBehaviour
     /// <returns></returns>
     public Texture2D GetMainCameraTexture2D()
     {
-        if (IsVisionOs())
-        {
-            return Base64ToTexture2D(tempBase64String);
-        }
-        else
-        {
-            return tmpTexture;
-        }
+#if UNITY_VISIONOS && !UNITY_EDITOR
+        Base64ToTexture2D(tmpTexture, tempBase64String);
+#endif
+        return tmpTexture;
     }
 
     void Awake()
@@ -73,7 +69,12 @@ public class EnterpriseCameraAccessManager : MonoBehaviour
         // Apply to material continuously
         StartCoroutine(ApplyVisionProCameraCaptureToMaterialContinuously());
 
-        // Skip the following process
+        // Create a tempTexture and assign it to the material
+        tmpTexture = new Texture2D(256, 256);
+        Debug.Log("tmpTextureWidth: " + tmpTexture.width + " tmpTextureHeight: " + tmpTexture.height);
+        PreviewMaterial.mainTexture = tmpTexture;
+
+        // Skip the following process, WebCamTexture is not used
         return;
 #endif
 
@@ -175,29 +176,29 @@ public class EnterpriseCameraAccessManager : MonoBehaviour
     {
         if (base64String == null) { return; }
 
-        // Destroy the old texture
-        if (PreviewMaterial.mainTexture != null)
-        {
-            Texture2D oldTexture = (Texture2D)PreviewMaterial.mainTexture;
-            UnityEngine.Object.Destroy(oldTexture);
-        }
-
-        tmpTexture = Base64ToTexture2D(base64String);
-        material.mainTexture = tmpTexture;
+        // Overwrite the tmpTexture (material.mainTexture) with the base64String
+        Base64ToTexture2D(tmpTexture, base64String);
     }
 
     // Convert Base64String to Texture2D
-    static Texture2D Base64ToTexture2D(string base64)
+    void Base64ToTexture2D(Texture2D tex, string base64)
     {
         try
         {
             byte[] imageBytes = System.Convert.FromBase64String(base64);
-            Texture2D texture = new Texture2D(2, 2);
-            if (texture.LoadImage(imageBytes)) { return texture; }
-            else { Debug.LogError("Failed to load image from byte array."); return null; }
+
+            // tmpTexture に画像を読み込む
+            bool loadSuccess = tex.LoadImage(imageBytes);
+
+            if (!loadSuccess)
+            {
+                Debug.LogError("Failed to load image from byte array.");
+            }
         }
-        catch { Debug.LogError("Failed to convert base64 string to texture2D."); }
-        return null;
+        catch (Exception ex)
+        {
+            Debug.LogError($"Failed to convert base64 string to texture2D: {ex.Message}");
+        }
     }
 
     bool IsVisionOs()
