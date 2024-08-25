@@ -1,6 +1,6 @@
 {
   "name": "com.styly.enterprise-camera-access",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "displayName": "Enterprise Camera Access Plugin for Vision Pro and Pico",
   "unity": "2022.3",
   "description": "Enterprise Camera Access Plugin for Vision Pro and Pico using Enterprise API",
