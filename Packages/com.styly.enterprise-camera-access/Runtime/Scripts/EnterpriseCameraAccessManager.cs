@@ -29,6 +29,13 @@ public class EnterpriseCameraAccessManager : MonoBehaviour
     private int PicoImageHeight = 874;
 #endif
 
+    private RenderTexture _renderTexture;
+    private IntPtr _texturePtr;
+    private bool _hasSetTexture;
+    private Texture2D _texture;
+    private int _width = 1920;
+    private int _height = 1080;
+
     /// <summary>
     /// Get Vision Pro main camera image as texture2D.
     /// </summary>
@@ -142,6 +149,17 @@ public class EnterpriseCameraAccessManager : MonoBehaviour
 #if USE_PICOXR && UNITY_ANDROID && !UNITY_EDITOR
         ApplyPicoFrameToMaterial(PreviewMaterial);
 #endif
+
+#if UNITY_VISIONOS && !UNITY_EDITOR
+        if (_hasSetTexture)
+        {
+            UpdateTexture();
+        }
+        else
+        {
+            TryGetTexture();
+        }
+#endif
     }
 
     void StartWebCam(string deviceName)
@@ -221,11 +239,40 @@ public class EnterpriseCameraAccessManager : MonoBehaviour
     static extern void SetNativeCallbackOfCameraAccess(CallbackDelegate callback);
     [DllImport("__Internal")]
     static extern void StartVisionProMainCameraCapture();
+    [DllImport("__Internal")]
+    static extern IntPtr getTexture();
 #else
     static void SetNativeCallbackOfCameraAccess(CallbackDelegate callback) { }
     static void StartVisionProMainCameraCapture() { }
+    static IntPtr getTexture() { return IntPtr.Zero; }
 #endif
 
+    private void TryGetTexture()
+    {
+        IntPtr texturePtr = getTexture();
+        if (texturePtr == IntPtr.Zero) return;
+
+        _texturePtr = texturePtr;
+
+        if (_texture != null)
+        {
+            Destroy(_texture);
+        }
+
+        _texture = Texture2D.CreateExternalTexture(_width, _height, TextureFormat.BGRA32, false, false, _texturePtr);
+        _texture.UpdateExternalTexture(_texturePtr);
+        Graphics.Blit(_texture, _renderTexture, PreviewMaterial);
+
+        PreviewMaterial.mainTexture = _renderTexture;
+
+        _hasSetTexture = true;
+    }
+
+    private void UpdateTexture()
+    {
+        Graphics.Blit(_texture, _renderTexture, PreviewMaterial);
+        Unity.PolySpatial.PolySpatialObjectUtils.MarkDirty(_renderTexture);
+    }
 
 #if USE_PICOXR && UNITY_ANDROID && !UNITY_EDITOR
     // Code for PicoXR
