@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 019d9e67133646548a506370e966316a, type: 3}
   m_Name: PolySpatialSettings
   m_EditorClassIdentifier: 
-  m_PackageVersion: 1.2.3
+  m_PackageVersion: 1.3.11
   m_EnableStatistics: 0
   m_ColliderSyncLayerMask:
     serializedVersion: 2
