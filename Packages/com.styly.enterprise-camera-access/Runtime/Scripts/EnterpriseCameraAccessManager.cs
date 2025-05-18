@@ -23,6 +23,14 @@ public class EnterpriseCameraAccessManager : MonoBehaviour
     private Texture2D tmpTexture = null;
     private string tempBase64String = null;
     private float skipSeconds = 0.1f;
+#if UNITY_VISIONOS && !UNITY_EDITOR
+    private bool _hasSetTexture = false;
+    private Texture2D _texture;
+    private RenderTexture _renderTexture;
+    private IntPtr _texturePtr;
+    private int _width = 1920;
+    private int _height = 1080;
+#endif
 
 #if USE_PICOXR && UNITY_ANDROID && !UNITY_EDITOR
     private int PicoImageWidth = 1164;
@@ -50,7 +58,7 @@ public class EnterpriseCameraAccessManager : MonoBehaviour
     void OnEnable()
     {
 #if UNITY_VISIONOS && !UNITY_EDITOR
-        SetNativeCallbackOfCameraAccess(CallbackFromNative);
+        // No setup required for native texture capture
 #endif
     }
 
@@ -63,18 +71,11 @@ public class EnterpriseCameraAccessManager : MonoBehaviour
 #endif
 
 #if UNITY_VISIONOS && !UNITY_EDITOR
-        // Start the main camera capture
-        StartVisionProMainCameraCapture();
-
-        // Apply to material continuously
-        StartCoroutine(ApplyVisionProCameraCaptureToMaterialContinuously());
-
-        // Create a tempTexture and assign it to the material
-        tmpTexture = new Texture2D(256, 256);
-        Debug.Log("tmpTextureWidth: " + tmpTexture.width + " tmpTextureHeight: " + tmpTexture.height);
-        PreviewMaterial.mainTexture = tmpTexture;
-
-        // Skip the following process, WebCamTexture is not used
+        _renderTexture = new RenderTexture(_width, _height, 1, RenderTextureFormat.ARGB32);
+        _renderTexture.enableRandomWrite = true;
+        _renderTexture.Create();
+        PreviewMaterial.mainTexture = _renderTexture;
+        startCapture();
         return;
 #endif
 
@@ -97,7 +98,7 @@ public class EnterpriseCameraAccessManager : MonoBehaviour
 #endif
 
 #if UNITY_VISIONOS && !UNITY_EDITOR
-        SetNativeCallbackOfCameraAccess(null);
+        stopCapture();
         return;
 #endif
         if (webCamTexture != null) { webCamTexture.Stop(); }
@@ -136,11 +137,22 @@ public class EnterpriseCameraAccessManager : MonoBehaviour
 
     void Update()
     {
+#if UNITY_VISIONOS && !UNITY_EDITOR
+        if (_hasSetTexture)
+        {
+            UpdateTexture();
+        }
+        else
+        {
+            TryGetTexture();
+        }
+#else
         // Apply WebCamTexture to material
         ApplyWebcamTextureToMaterial(PreviewMaterial, webCamTexture);
 
 #if USE_PICOXR && UNITY_ANDROID && !UNITY_EDITOR
         ApplyPicoFrameToMaterial(PreviewMaterial);
+#endif
 #endif
     }
 
@@ -217,10 +229,54 @@ public class EnterpriseCameraAccessManager : MonoBehaviour
     }
 
 #if UNITY_VISIONOS && !UNITY_EDITOR
+    private void TryGetTexture()
+    {
+        IntPtr texturePtr = getTexture();
+        if (texturePtr == IntPtr.Zero) return;
+
+        _texturePtr = texturePtr;
+
+        if (_texture != null)
+        {
+            UnityEngine.Object.Destroy(_texture);
+        }
+
+        _texture = Texture2D.CreateExternalTexture(_width, _height, TextureFormat.BGRA32, false, false, _texturePtr);
+        _texture.UpdateExternalTexture(_texturePtr);
+        
+        // スケールとオフセットを使用して上下反転を行う
+        // scale.y を -1 にすることで上下反転、offset.y を 1 にすることで位置を調整
+        Vector2 scale = new Vector2(1, -1);
+        Vector2 offset = new Vector2(0, 1);
+        
+        Graphics.Blit(_texture, _renderTexture, scale, offset);
+        PreviewMaterial.mainTexture = _renderTexture;
+
+        _hasSetTexture = true;
+    }
+
+    private void UpdateTexture()
+    {
+        // スケールとオフセットを使用して上下反転を行う
+        Vector2 scale = new Vector2(1, -1);
+        Vector2 offset = new Vector2(0, 1);
+        
+        Graphics.Blit(_texture, _renderTexture, scale, offset);
+        Unity.PolySpatial.PolySpatialObjectUtils.MarkDirty(_renderTexture);
+    }
+#endif
+
+#if UNITY_VISIONOS && !UNITY_EDITOR
     [DllImport("__Internal")]
     static extern void SetNativeCallbackOfCameraAccess(CallbackDelegate callback);
     [DllImport("__Internal")]
     static extern void StartVisionProMainCameraCapture();
+    [DllImport("__Internal")]
+    static extern void startCapture();
+    [DllImport("__Internal")]
+    static extern void stopCapture();
+    [DllImport("__Internal")]
+    static extern IntPtr getTexture();
 #else
     static void SetNativeCallbackOfCameraAccess(CallbackDelegate callback) { }
     static void StartVisionProMainCameraCapture() { }

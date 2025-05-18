@@ -22,18 +22,18 @@ The Unity package solves two problems:
 
 ### Requirements
 
-- Unity 2022.3.X
-- Unity Pro license
-
-Requirements for Vision Pro
+#### Requirements for Vision Pro
 
 - Vision Pro device
-- visionOS 2.0 (Beta)
-- Xcode 16.0 (Beta)
+- Unity 6
+- PolySpatial 2.2.4
+- visionOS 2.0
+- Xcode 16.3
 - [Enterprise APIs for visionOS entitlements](https://developer.apple.com/documentation/visionOS/building-spatial-experiences-for-business-apps-with-enterprise-apis#Request-the-entitlements)
 - `Enterprise.license` file issued from Apple
 
-Requirements for Pico 4
+#### Requirements for Pico 4
+- Unity 2022.3.X or above
 - Pico 4 Enterprise device
 - Sign up for [Pico testing program](https://github.com/picoxr/GetCameraFrame)
 - Authorized Package name
