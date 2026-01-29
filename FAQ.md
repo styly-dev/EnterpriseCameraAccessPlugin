@@ -68,7 +68,7 @@ If you need **spatial barcode scanning** (barcodes tracked in 3D space):
 #### Summary Table
 
 | Feature | This Plugin (Enterprise API) | AVFoundation (Standard) |
-|---------|----------------------------|------------------------|
+| ------- | --------------------------- | ----------------------- |
 | **Account Required** | Enterprise or Organization | Any Apple Developer Account |
 | **Apple Approval** | Yes (entitlement request) | No |
 | **License File** | Yes (Enterprise.license) | No |

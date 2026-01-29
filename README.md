@@ -18,7 +18,7 @@ The Unity package solves two problems:
 
 <img width="696" alt="EnterpriseCameraAccessManager" src="https://github.com/styly-dev/EnterpriseCameraAccessPlugin/assets/387880/e4e237b3-89dd-414f-aa95-10824b2eaeda">
 
-> **Note:** This plugin requires Enterprise APIs and entitlements from Apple/Pico. See [FAQ.md](FAQ.md) for details about requirements, especially regarding QR code/barcode scanning without Enterprise accounts.
+> **Note:** This plugin requires Enterprise APIs and entitlements from Apple/Pico. For questions about what you can do without Enterprise accounts (e.g., basic barcode scanning), see [FAQ.md](FAQ.md).
 
 ## Installation and setup
 
