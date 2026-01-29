@@ -18,6 +18,8 @@ The Unity package solves two problems:
 
 <img width="696" alt="EnterpriseCameraAccessManager" src="https://github.com/styly-dev/EnterpriseCameraAccessPlugin/assets/387880/e4e237b3-89dd-414f-aa95-10824b2eaeda">
 
+> **Note:** This plugin requires Enterprise APIs and entitlements from Apple/Pico. See [FAQ.md](FAQ.md) for details about requirements, especially regarding QR code/barcode scanning without Enterprise accounts.
+
 ## Installation and setup
 
 ### Requirements
@@ -76,4 +78,17 @@ openupm add com.styly.enterprise-camera-access
 Import samples from Package Manager.
 
 <img width="934" alt="ImportSamples" src="https://github.com/styly-dev/EnterpriseCameraAccessPlugin/assets/387880/d00efba3-b7e8-49d8-b63c-7766a1e34b95">
+
+## Frequently Asked Questions
+
+**Q: Can I use this plugin without an Enterprise developer account?**  
+**A:** No. This plugin requires Enterprise APIs and Apple's approval. See [FAQ.md](FAQ.md) for detailed information.
+
+**Q: Can I use basic QR code/barcode scanning without Enterprise access?**  
+**A:** Not with this plugin. However, you can use standard iOS/visionOS APIs (AVFoundation) for 2D barcode scanning with a regular developer account. See [FAQ.md](FAQ.md) for alternatives.
+
+**Q: What exactly does this plugin provide?**  
+**A:** Direct access to the visionOS main camera feed for enterprise applications. This enables real-time camera capture in Unity for Vision Pro.
+
+For more questions, see the complete [FAQ.md](FAQ.md) document.
 
