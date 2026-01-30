@@ -34,6 +34,7 @@ public class ConfigureXcodeSettings : IPreprocessBuildWithReport
             string EntitlementsXmlAbsolutePath = Path.Combine(GetCurrentPackageAbsolutePath(), EntitlementsXmlPath);
             AddEntitlementsFile(EntitlementsXmlAbsolutePath, pathToBuiltProject);
             AddKeyValueToPlist("NSEnterpriseMCAMUsageDescription", "This app capture images from the main camera", pathToBuiltProject);
+            AddKeyValueToPlist("NSPhotoLibraryUsageDescription", "This app captures composite view screenshots", pathToBuiltProject);
             SetMinimumDeploymentVersion("XROS_DEPLOYMENT_TARGET", "2.0", pathToBuiltProject);
         }
     }

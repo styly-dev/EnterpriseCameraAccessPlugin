@@ -19,6 +19,9 @@ public class EnterpriseCameraAccessManager : MonoBehaviour
     [Tooltip("WebCam will be used for Editor mode or Smartphone. Default camera is used if this field is empty.")]
     public string WebCamDeviceName = "";
 
+    [Tooltip("Enable composite view capture (passthrough + digital content) instead of physical camera only")]
+    public bool UseCompositeCapture = false;
+
     private WebCamTexture webCamTexture;
     private Texture2D tmpTexture = null;
     private string tempBase64String = null;
@@ -30,6 +33,14 @@ public class EnterpriseCameraAccessManager : MonoBehaviour
     private IntPtr _texturePtr;
     private int _width = 1920;
     private int _height = 1080;
+
+    // Composite capture
+    private bool _hasSetCompositeTexture = false;
+    private Texture2D _compositeTexture;
+    private RenderTexture _compositeRenderTexture;
+    private IntPtr _compositeTexturePtr;
+    private int _compositeWidth = 1920;
+    private int _compositeHeight = 1080;
 #endif
 
 #if USE_PICOXR && UNITY_ANDROID && !UNITY_EDITOR
@@ -71,11 +82,24 @@ public class EnterpriseCameraAccessManager : MonoBehaviour
 #endif
 
 #if UNITY_VISIONOS && !UNITY_EDITOR
-        _renderTexture = new RenderTexture(_width, _height, 1, RenderTextureFormat.ARGB32);
-        _renderTexture.enableRandomWrite = true;
-        _renderTexture.Create();
-        PreviewMaterial.mainTexture = _renderTexture;
-        startCapture();
+        if (UseCompositeCapture)
+        {
+            // Initialize composite capture
+            _compositeRenderTexture = new RenderTexture(_compositeWidth, _compositeHeight, 1, RenderTextureFormat.ARGB32);
+            _compositeRenderTexture.enableRandomWrite = true;
+            _compositeRenderTexture.Create();
+            PreviewMaterial.mainTexture = _compositeRenderTexture;
+            startCompositeCapture();
+        }
+        else
+        {
+            // Initialize physical camera capture
+            _renderTexture = new RenderTexture(_width, _height, 1, RenderTextureFormat.ARGB32);
+            _renderTexture.enableRandomWrite = true;
+            _renderTexture.Create();
+            PreviewMaterial.mainTexture = _renderTexture;
+            startCapture();
+        }
         return;
 #endif
 
@@ -98,7 +122,14 @@ public class EnterpriseCameraAccessManager : MonoBehaviour
 #endif
 
 #if UNITY_VISIONOS && !UNITY_EDITOR
-        stopCapture();
+        if (UseCompositeCapture)
+        {
+            stopCompositeCapture();
+        }
+        else
+        {
+            stopCapture();
+        }
         return;
 #endif
         if (webCamTexture != null) { webCamTexture.Stop(); }
@@ -138,13 +169,27 @@ public class EnterpriseCameraAccessManager : MonoBehaviour
     void Update()
     {
 #if UNITY_VISIONOS && !UNITY_EDITOR
-        if (_hasSetTexture)
+        if (UseCompositeCapture)
         {
-            UpdateTexture();
+            if (_hasSetCompositeTexture)
+            {
+                UpdateCompositeTexture();
+            }
+            else
+            {
+                TryGetCompositeTexture();
+            }
         }
         else
         {
-            TryGetTexture();
+            if (_hasSetTexture)
+            {
+                UpdateTexture();
+            }
+            else
+            {
+                TryGetTexture();
+            }
         }
 #else
         // Apply WebCamTexture to material
@@ -260,9 +305,56 @@ public class EnterpriseCameraAccessManager : MonoBehaviour
         // スケールとオフセットを使用して上下反転を行う
         Vector2 scale = new Vector2(1, -1);
         Vector2 offset = new Vector2(0, 1);
-        
+
         Graphics.Blit(_texture, _renderTexture, scale, offset);
         Unity.PolySpatial.PolySpatialObjectUtils.MarkDirty(_renderTexture);
+    }
+
+    private void TryGetCompositeTexture()
+    {
+        IntPtr texturePtr = getCompositeTexture();
+        if (texturePtr == IntPtr.Zero) return;
+
+        _compositeTexturePtr = texturePtr;
+
+        if (_compositeTexture != null)
+        {
+            UnityEngine.Object.Destroy(_compositeTexture);
+        }
+
+        _compositeTexture = Texture2D.CreateExternalTexture(_compositeWidth, _compositeHeight, TextureFormat.BGRA32, false, false, _compositeTexturePtr);
+        _compositeTexture.UpdateExternalTexture(_compositeTexturePtr);
+
+        // スケールとオフセットを使用して上下反転を行う
+        Vector2 scale = new Vector2(1, -1);
+        Vector2 offset = new Vector2(0, 1);
+
+        Graphics.Blit(_compositeTexture, _compositeRenderTexture, scale, offset);
+        PreviewMaterial.mainTexture = _compositeRenderTexture;
+
+        _hasSetCompositeTexture = true;
+    }
+
+    private void UpdateCompositeTexture()
+    {
+        // スケールとオフセットを使用して上下反転を行う
+        Vector2 scale = new Vector2(1, -1);
+        Vector2 offset = new Vector2(0, 1);
+
+        Graphics.Blit(_compositeTexture, _compositeRenderTexture, scale, offset);
+        Unity.PolySpatial.PolySpatialObjectUtils.MarkDirty(_compositeRenderTexture);
+    }
+
+    /// <summary>
+    /// Get composite view texture (passthrough + digital content)
+    /// </summary>
+    public Texture2D GetCompositeTexture2D()
+    {
+#if UNITY_VISIONOS && !UNITY_EDITOR
+        return _compositeTexture;
+#else
+        return null;
+#endif
     }
 #endif
 
@@ -277,9 +369,24 @@ public class EnterpriseCameraAccessManager : MonoBehaviour
     static extern void stopCapture();
     [DllImport("__Internal")]
     static extern IntPtr getTexture();
+    [DllImport("__Internal")]
+    static extern void startCompositeCapture();
+    [DllImport("__Internal")]
+    static extern void stopCompositeCapture();
+    [DllImport("__Internal")]
+    static extern IntPtr getCompositeTexture();
+    [DllImport("__Internal")]
+    static extern bool isCompositeAvailable();
 #else
     static void SetNativeCallbackOfCameraAccess(CallbackDelegate callback) { }
     static void StartVisionProMainCameraCapture() { }
+    static void startCapture() { }
+    static void stopCapture() { }
+    static IntPtr getTexture() { return IntPtr.Zero; }
+    static void startCompositeCapture() { }
+    static void stopCompositeCapture() { }
+    static IntPtr getCompositeTexture() { return IntPtr.Zero; }
+    static bool isCompositeAvailable() { return false; }
 #endif
 
 

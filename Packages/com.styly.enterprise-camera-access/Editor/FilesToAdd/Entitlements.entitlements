@@ -4,5 +4,7 @@
 <dict>
 	<key>com.apple.developer.arkit.main-camera-access.allow</key>
 	<true/>
+	<key>com.apple.developer.screen-capture.composite-passthrough</key>
+	<true/>
 </dict>
 </plist>
