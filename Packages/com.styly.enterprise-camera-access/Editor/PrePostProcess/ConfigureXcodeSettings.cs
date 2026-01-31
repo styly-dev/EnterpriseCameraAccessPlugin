@@ -125,7 +125,7 @@ public class ConfigureXcodeSettings : IPreprocessBuildWithReport
     }
 
     /// <summary>
-    /// Add key/value pair to info.plist 
+    /// Add key/value pair to info.plist
     /// </summary>
     static void AddKeyValueToPlist(string key, string value, string pathToBuiltProject)
     {
