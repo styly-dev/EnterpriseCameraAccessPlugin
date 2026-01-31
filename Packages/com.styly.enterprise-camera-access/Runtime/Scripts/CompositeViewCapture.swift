@@ -1,5 +1,4 @@
 import ReplayKit
-import ARKit
 import AVFoundation
 import MetalKit
 import Accelerate
@@ -89,7 +88,7 @@ private func createCompositeTexture(_ pixelBuffer: CVPixelBuffer) {
         CVMetalTextureCacheCreate(kCFAllocatorDefault, nil, compositeMtlDevice, nil, &compositeTextureCache)
     }
 
-    _ = CVMetalTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
+    let textureStatus = CVMetalTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
                                                   compositeTextureCache,
                                                   pixelBufferBGRA,
                                                   nil,
@@ -98,15 +97,16 @@ private func createCompositeTexture(_ pixelBuffer: CVPixelBuffer) {
                                                   height,
                                                   0,
                                                   &cvTexture)
-    guard let imageTexture = cvTexture else { return }
-    let texture: MTLTexture = CVMetalTextureGetTexture(imageTexture)!
+    guard textureStatus == kCVReturnSuccess,
+          let imageTexture = cvTexture,
+          let texture = CVMetalTextureGetTexture(imageTexture) else { return }
 
     if compositeCurrentTexture == nil {
         let texdescriptor = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: texture.pixelFormat,
                                                                      width: texture.width,
                                                                      height: texture.height,
                                                                      mipmapped: false)
-        texdescriptor.usage = .unknown
+        texdescriptor.usage = [.shaderRead]
         compositeCurrentTexture = compositeMtlDevice.makeTexture(descriptor: texdescriptor)
     }
 
@@ -114,13 +114,14 @@ private func createCompositeTexture(_ pixelBuffer: CVPixelBuffer) {
         compositeCommandQueue = compositeMtlDevice.makeCommandQueue()
     }
 
-    let commandBuffer = compositeCommandQueue.makeCommandBuffer()!
-    let blitEncoder = commandBuffer.makeBlitCommandEncoder()!
+    guard let commandBuffer = compositeCommandQueue.makeCommandBuffer(),
+          let blitEncoder = commandBuffer.makeBlitCommandEncoder(),
+          let destTexture = compositeCurrentTexture else { return }
     blitEncoder.copy(from: texture,
                      sourceSlice: 0, sourceLevel: 0,
                      sourceOrigin: MTLOrigin(x: 0, y: 0, z: 0),
                      sourceSize: MTLSizeMake(texture.width, texture.height, texture.depth),
-                     to: compositeCurrentTexture!, destinationSlice: 0, destinationLevel: 0,
+                     to: destTexture, destinationSlice: 0, destinationLevel: 0,
                      destinationOrigin: MTLOrigin(x: 0, y: 0, z: 0))
     blitEncoder.endEncoding()
     commandBuffer.commit()
@@ -141,7 +142,10 @@ extension CVPixelBuffer {
             return pixelBuffer
         }
 
-        guard pixelFormat == kCVPixelFormatType_420YpCbCr8BiPlanarFullRange else { return pixelBuffer }
+        guard pixelFormat == kCVPixelFormatType_420YpCbCr8BiPlanarFullRange else {
+            print("toCompositeBGRA: Unsupported pixel format: \(pixelFormat). Expected BGRA or 420YpCbCr8BiPlanarFullRange.")
+            return nil
+        }
 
         let yImage: CompositeVImage = pixelBuffer.withComposite({ CompositeVImage(pixelBuffer: $0, plane: 0) })!
         let cbcrImage: CompositeVImage = pixelBuffer.withComposite({ CompositeVImage(pixelBuffer: $0, plane: 1) })!
@@ -228,7 +232,8 @@ extension vImage_Buffer {
         }()
         let error = vImageConvert_420Yp8_CbCr8ToARGB8888(&yBuffer, &cbcrBuffer, &self, &conversionMatrix, nil, 255, UInt32(kvImageNoFlags))
         if error != kvImageNoError {
-            fatalError()
+            print("vImage conversion error: \(error)")
+            return
         }
     }
 

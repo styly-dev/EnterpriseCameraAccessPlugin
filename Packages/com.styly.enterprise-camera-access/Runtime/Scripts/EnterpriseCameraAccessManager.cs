@@ -19,7 +19,7 @@ public class EnterpriseCameraAccessManager : MonoBehaviour
     [Tooltip("WebCam will be used for Editor mode or Smartphone. Default camera is used if this field is empty.")]
     public string WebCamDeviceName = "";
 
-    [Tooltip("Enable composite view capture (passthrough + digital content) instead of physical camera only")]
+    [Tooltip("Enable composite view capture (passthrough + digital content) instead of physical camera only. Note: (1) Composite capture may have performance implications, (2) Physical camera only captures the real world without digital content, (3) Composite requires screen-capture entitlement and has privacy implications.")]
     public bool UseCompositeCapture = false;
 
     private WebCamTexture webCamTexture;
@@ -125,10 +125,36 @@ public class EnterpriseCameraAccessManager : MonoBehaviour
         if (UseCompositeCapture)
         {
             stopCompositeCapture();
+
+            if (_compositeRenderTexture != null)
+            {
+                _compositeRenderTexture.Release();
+                Destroy(_compositeRenderTexture);
+                _compositeRenderTexture = null;
+            }
+
+            if (_compositeTexture != null)
+            {
+                Destroy(_compositeTexture);
+                _compositeTexture = null;
+            }
         }
         else
         {
             stopCapture();
+
+            if (_renderTexture != null)
+            {
+                _renderTexture.Release();
+                Destroy(_renderTexture);
+                _renderTexture = null;
+            }
+
+            if (_texture != null)
+            {
+                Destroy(_texture);
+                _texture = null;
+            }
         }
         return;
 #endif
@@ -288,12 +314,12 @@ public class EnterpriseCameraAccessManager : MonoBehaviour
 
         _texture = Texture2D.CreateExternalTexture(_width, _height, TextureFormat.BGRA32, false, false, _texturePtr);
         _texture.UpdateExternalTexture(_texturePtr);
-        
+
         // スケールとオフセットを使用して上下反転を行う
         // scale.y を -1 にすることで上下反転、offset.y を 1 にすることで位置を調整
         Vector2 scale = new Vector2(1, -1);
         Vector2 offset = new Vector2(0, 1);
-        
+
         Graphics.Blit(_texture, _renderTexture, scale, offset);
         PreviewMaterial.mainTexture = _renderTexture;
 
@@ -315,14 +341,19 @@ public class EnterpriseCameraAccessManager : MonoBehaviour
         IntPtr texturePtr = getCompositeTexture();
         if (texturePtr == IntPtr.Zero) return;
 
-        _compositeTexturePtr = texturePtr;
-
-        if (_compositeTexture != null)
+        // Only recreate the external texture if the underlying pointer has changed
+        if (_compositeTexture == null || texturePtr != _compositeTexturePtr)
         {
-            UnityEngine.Object.Destroy(_compositeTexture);
+            _compositeTexturePtr = texturePtr;
+
+            if (_compositeTexture != null)
+            {
+                UnityEngine.Object.Destroy(_compositeTexture);
+            }
+
+            _compositeTexture = Texture2D.CreateExternalTexture(_compositeWidth, _compositeHeight, TextureFormat.BGRA32, false, false, _compositeTexturePtr);
         }
 
-        _compositeTexture = Texture2D.CreateExternalTexture(_compositeWidth, _compositeHeight, TextureFormat.BGRA32, false, false, _compositeTexturePtr);
         _compositeTexture.UpdateExternalTexture(_compositeTexturePtr);
 
         // スケールとオフセットを使用して上下反転を行う
@@ -337,6 +368,9 @@ public class EnterpriseCameraAccessManager : MonoBehaviour
 
     private void UpdateCompositeTexture()
     {
+        // Refresh the texture data from native side
+        _compositeTexture.UpdateExternalTexture(_compositeTexturePtr);
+
         // スケールとオフセットを使用して上下反転を行う
         Vector2 scale = new Vector2(1, -1);
         Vector2 offset = new Vector2(0, 1);
@@ -346,8 +380,12 @@ public class EnterpriseCameraAccessManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Get composite view texture (passthrough + digital content)
+    /// Get composite view texture (passthrough + digital content).
+    /// Returns null if composite capture is not available on the current platform,
+    /// or if the capture has not been initialized yet. Check IsCompositeCaptureAvailable()
+    /// before calling this method.
     /// </summary>
+    /// <returns>The composite texture, or null if not available or not initialized.</returns>
     public Texture2D GetCompositeTexture2D()
     {
 #if UNITY_VISIONOS && !UNITY_EDITOR
@@ -355,6 +393,16 @@ public class EnterpriseCameraAccessManager : MonoBehaviour
 #else
         return null;
 #endif
+    }
+
+    /// <summary>
+    /// Indicates whether composite capture is available on the current platform.
+    /// Call this before using composite capture features such as GetCompositeTexture2D().
+    /// </summary>
+    /// <returns>True if composite capture is available, false otherwise.</returns>
+    public bool IsCompositeCaptureAvailable()
+    {
+        return isCompositeAvailable();
     }
 #endif
 
